@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Support Assistant</title>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #f72585;
+      --text: #2b2d42;
+      --text-light: #8d99ae;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --user-bubble: #4361ee;
+      --bot-bubble: #f1f3f8;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .chat-app {
+      width: 100%;
+      max-width: 500px;
+      height: 90vh;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+    }
+
+    .chat-header {
+      padding: 18px 20px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bot-avatar {
+      width: 36px;
+      height: 36px;
+      background: white;
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+    }
+
+    .bot-info h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .bot-info p {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #4cc9f0;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .chat-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.4;
+      position: relative;
+      animation: fadeIn 0.3s ease-out;
+      word-wrap: break-word;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background: var(--bot-bubble);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background: var(--user-bubble);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .user-message .message-time {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .typing-indicator {
+      align-self: flex-start;
+      background: var(--bot-bubble);
+      padding: 12px 16px;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--text-light);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+
+    .input-area {
+      padding: 15px;
+      background: var(--card);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .input-container {
+      display: flex;
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 8px 8px 8px 16px;
+    }
+
+    .input-container input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 8px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .welcome-message {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      animation: welcomeFadeIn 1s ease-out;
+    }
+/* Add these styles to your existing CSS */
+.bot-message h3 {
+    margin: 10px 0 5px 0;
+    font-size: 16px;
+    color: var(--primary);
+}
+
+.bot-message ul {
+    margin: 8px 0 8px 20px;
+    list-style-type: disc;
+}
+
+.bot-message li {
+    margin-bottom: 5px;
+}
+
+.bot-message table {
+    width: 100%;
+    margin: 10px 0;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.bot-message th, 
+.bot-message td {
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+.bot-message th {
+    background-color: rgba(67, 97, 238, 0.1);
+    font-weight: 600;
+}
+
+.bot-message strong {
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+.mic-btn {
+      width: 40px;
+      height: 40px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-right: 8px;
+    }
+    
+    .mic-btn:hover {
+      background: #d6336c;
+    }
+    
+    .mic-btn.recording {
+      background: #f00;
+      animation: pulse 1.5s infinite;
+    }
+    
+    .input-container {
+      display: flex;
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 8px 8px 8px 16px;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes welcomeFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 600px) {
+      .chat-app {
+        height: 100vh;
+        border-radius: 0;
+      }
+      
+      body {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-app">
+    <div class="chat-header">
+      <div class="header-content">
+        <div class="bot-avatar">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="bot-info">
+          <h2>Support Assistant</h2>
+          <p>Online</p>
+        </div>
+      </div>
+      <div class="status">
+        <div class="status-dot"></div>
+        <span>Active</span>
+      </div>
+    </div>
+
+    <div class="chat-container" id="chat-box">
+      <div class="welcome-message">
+        <h3>👋 Hello! I'm your AI assistant</h3>
+        <p>How can I help you today?</p>
+      </div>
+    </div>
+
+    <div class="input-area">
+        <div class="input-container">
+          <input type="text" id="user-input" placeholder="Type your message or click mic..." />
+          <button id="mic-btn" class="mic-btn">
+            <i class="fas fa-microphone"></i>
+          </button>
+          <button class="send-btn" onclick="sendMessage()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+  </div>
+
+  <script>
+    // Format markdown responses from the bot
+    function formatBotResponse(text) {
+    // Remove horizontal divider lines (---)
+    text = text.replace(/-{3,}\n?/g, '');
+    
+    // Convert headers (###)
+    text = text.replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>');
+    
+    // Convert bullet points
+    text = text.replace(/^- (.*?)(\n|$)/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
+    
+    // Convert bold text
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert tables
+    text = text.replace(/\|(.+?)\|/g, function(match) {
+        let rows = match.split('\n').filter(row => row.trim());
+        if (rows.length === 0) return '';
+        
+        let tableHtml = '<table class="pricing-table">';
+        rows.forEach((row, index) => {
+            const cells = row.split('|').slice(1, -1).map(cell => cell.trim());
+            tableHtml += '<tr>';
+            cells.forEach(cell => {
+                tableHtml += index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
+            });
+            tableHtml += '</tr>';
+        });
+        return tableHtml + '</table>';
+    });
+    
+    // Preserve line breaks
+    text = text.replace(/\n/g, '<br>');
+    
+    return text;
+}
+
+async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        const chatBox = document.getElementById('chat-box');
+
+        // Add user message with timestamp
+        const userMsg = document.createElement('div');
+        userMsg.className = 'message user-message';
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        userMsg.innerHTML = `
+            ${message}
+            <div class="message-time">${timeString}</div>
+        `;
+        chatBox.appendChild(userMsg);
+        input.value = '';
+
+        // Add typing indicator
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator';
+        typingIndicator.innerHTML = `
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        `;
+        chatBox.appendChild(typingIndicator);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            // Send to backend
+            const res = await fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message })
+            });
+
+            const data = await res.json();
+
+            // Remove typing and show formatted bot response
+            typingIndicator.remove();
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot-message';
+            botMsg.innerHTML = `
+                ${formatBotResponse(data.reply)}
+                <div class="message-time">${timeString}</div>
+            `;
+            chatBox.appendChild(botMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } catch (error) {
+            typingIndicator.remove();
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'message bot-message';
+            errorMsg.textContent = "Sorry, I'm having trouble connecting. Please try again later.";
+            chatBox.appendChild(errorMsg);
+        }
+    }
+const micBtn = document.getElementById('mic-btn');
+    let recognition;
+    
+    // Check if browser supports speech recognition
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US'; // Set language to English
+      
+      micBtn.addEventListener('click', () => {
+        if (micBtn.classList.contains('recording')) {
+          recognition.stop();
+          micBtn.classList.remove('recording');
+          micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        } else {
+          recognition.start();
+          micBtn.classList.add('recording');
+          micBtn.innerHTML = '<i class="fas fa-stop"></i>';
+        }
+      });
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('user-input').value = transcript;
+        micBtn.classList.remove('recording');
+        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        sendMessage(); // Automatically send the voice message
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Recognition error', event.error);
+        micBtn.classList.remove('recording');
+        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+      };
+    } else {
+      micBtn.style.display = 'none'; // Hide mic button if not supported
+      console.log('Speech recognition not supported');
+    }
+    // Allow sending message with Enter key
+    document.getElementById('user-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+</body>
+</html>
