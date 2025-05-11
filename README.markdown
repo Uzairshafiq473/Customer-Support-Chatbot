@@ -108,7 +108,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## 🙋 Questions?
 Got questions or need help? Feel free to:
 - Open an issue on GitHub
-- Email [your-email@example.com](mailto:your-email@example.com)
+- Email [uzairshafiq461.com](mailto:your-email@example.com)
 - Join our community on [Discord/Slack/Your-Community-Link](#) (coming soon!)
 
 Happy coding, and let's make customer support smarter together! 💬
